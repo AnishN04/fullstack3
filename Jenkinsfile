@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'windows' } // ensure this runs on a Windows node
+    agent any
 
     environment {
         CI = "true"
@@ -16,7 +16,7 @@ pipeline {
         stage('Install Frontend Dependencies') {
             steps {
                 dir('frontend') {
-                    bat 'npm install --no-audit --no-fund'
+                    sh 'npm install --no-audit --no-fund'
                 }
             }
         }
@@ -24,7 +24,7 @@ pipeline {
         stage('Install Backend Dependencies') {
             steps {
                 dir('backend') {
-                    bat 'npm install --no-audit --no-fund'
+                    sh 'npm install --no-audit --no-fund'
                 }
             }
         }
@@ -32,7 +32,7 @@ pipeline {
         stage('Run Frontend Tests') {
             steps {
                 dir('frontend') {
-                    bat 'npm test -- --watchAll=false --passWithNoTests'
+                    sh 'npm test -- --watchAll=false --passWithNoTests'
                 }
             }
         }
@@ -40,7 +40,7 @@ pipeline {
         stage('Run Backend Tests') {
             steps {
                 dir('backend') {
-                    bat 'npm test'
+                    sh 'npm test'
                 }
             }
         }
