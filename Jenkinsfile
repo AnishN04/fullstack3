@@ -7,14 +7,14 @@ pipeline {
     }
 
     tools {
-        nodejs "NodeJS"
+        nodejs "NodeJS" // Ensure Jenkins NodeJS tool is named "NodeJS"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/AnishN04/fullstack3.git'
+                    url: 'https://github.com/ShanmukYadav/fullstack-master.git'
             }
         }
 
@@ -52,14 +52,22 @@ pipeline {
             }
         }
 
+        stage('Install Codacy Reporter') {
+            steps {
+                // Install Codacy Coverage Reporter globally
+                bat 'npm install -g @codacy/codacy-coverage-reporter'
+            }
+        }
+
         stage('Upload Coverage to Codacy') {
             steps {
                 withCredentials([string(credentialsId: 'CODACY_PROJECT_TOKEN', variable: 'CODACY_PROJECT_TOKEN')]) {
-                    // Install curl on Windows Jenkins agent if needed
-                    bat """
-                        bash -c "bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l JavaScript -r frontend/coverage/lcov.info"
-                        bash -c "bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l JavaScript -r backend/coverage/lcov.info"
-                    """
+                    dir('frontend') {
+                        bat 'codacy-coverage-reporter report -l JavaScript -r coverage/lcov.info'
+                    }
+                    dir('backend') {
+                        bat 'codacy-coverage-reporter report -l JavaScript -r coverage/lcov.info'
+                    }
                 }
             }
         }
