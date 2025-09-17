@@ -1,5 +1,6 @@
 pipeline {
-    agent any
+    agent { label 'windows' } // ensure this runs on a Windows node
+
     environment {
         CI = "true"
     }
@@ -49,6 +50,12 @@ pipeline {
         always {
             echo "Build finished. Cleaning workspace..."
             cleanWs()
+        }
+        success {
+            echo "✅ Build succeeded!"
+        }
+        failure {
+            echo "❌ Build failed! Check logs above."
         }
     }
 }
