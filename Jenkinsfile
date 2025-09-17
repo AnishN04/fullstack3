@@ -1,15 +1,16 @@
 pipeline {
     agent any
 
-    environment {
-        CI = "true"
+    tools {
+        nodejs "NodeJS-18"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/AnishN04/fullstack3.git'
+                    url: 'https://github.com/AnishN04/fullstack3.git',
+                    credentialsId: 'github-pat'
             }
         }
 
@@ -32,7 +33,7 @@ pipeline {
         stage('Run Frontend Tests') {
             steps {
                 dir('frontend') {
-                    sh 'npm test -- --watchAll=false --passWithNoTests'
+                    sh 'npm test -- --ci --passWithNoTests'
                 }
             }
         }
@@ -40,7 +41,7 @@ pipeline {
         stage('Run Backend Tests') {
             steps {
                 dir('backend') {
-                    sh 'npm test'
+                    sh 'npm test -- --ci --passWithNoTests'
                 }
             }
         }
