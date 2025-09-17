@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="2" failures="0" errors="0" time="1.664">
-  <testsuite name="Backend basic tests" errors="0" failures="0" skipped="0" timestamp="2025-09-17T08:01:06" time="1.589" tests="2">
-    <testcase classname="Backend basic tests GET /api/server-status should return 200" name="Backend basic tests GET /api/server-status should return 200" time="0.035">
+<testsuites name="jest tests" tests="2" failures="0" errors="0" time="1.948">
+  <testsuite name="Backend basic tests" errors="0" failures="0" skipped="0" timestamp="2025-09-17T15:15:46" time="1.873" tests="2">
+    <testcase classname="Backend basic tests GET /api/server-status should return 200" name="Backend basic tests GET /api/server-status should return 200" time="0.039">
     </testcase>
     <testcase classname="Backend basic tests GET /api/test-route should return 200" name="Backend basic tests GET /api/test-route should return 200" time="0.006">
     </testcase>
