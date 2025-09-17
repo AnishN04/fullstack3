@@ -4,7 +4,6 @@ pipeline {
     environment {
         CI = 'true'
         MONGO_URI = 'mongodb+srv://anishningala2018_db_user:Anish0204@lostandfound.1sduv0o.mongodb.net/?retryWrites=true&w=majority&appName=lostandfound'
-        CODACY_PROJECT_TOKEN = credentials('codacy-project-token') // store Codacy token securely in Jenkins
     }
 
     tools {
@@ -15,7 +14,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/AnishN04/fullstack3.git'
+                    url: 'https://github.com/ShanmukYadav/fullstack-master.git'
             }
         }
 
@@ -53,43 +52,22 @@ pipeline {
             }
         }
 
-        stage('Codacy Analysis') {
+        stage('Upload Coverage to Codacy') {
             steps {
-                dir('frontend') {
-                    // Download and run Codacy CLI
-                    powershell '''
-                        Invoke-WebRequest -Uri "https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-windows-x64.exe" -OutFile "codacy-analysis-cli.exe"
-                        .\\codacy-analysis-cli.exe analyze --tool eslint --output codacy-results.json --verbose
-                    '''
+                withCredentials([string(credentialsId: 'CODACY_PROJECT_TOKEN', variable: 'CODACY_PROJECT_TOKEN')]) {
+                    // Install curl on Windows Jenkins agent if needed
+                    bat """
+                        bash -c "bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l JavaScript -r frontend/coverage/lcov.info"
+                        bash -c "bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l JavaScript -r backend/coverage/lcov.info"
+                    """
                 }
-            }
-        }
-
-        stage('Upload Coverage Reports to Codacy') {
-            steps {
-                powershell '''
-                    # Download Codacy Coverage Reporter
-                    Invoke-WebRequest -Uri "https://coverage.codacy.com/get.sh" -OutFile "codacy-coverage.sh"
-
-                    # Run coverage upload for frontend if file exists
-                    if (Test-Path "frontend\\coverage\\lcov.info") {
-                        bash codacy-coverage.sh report -r frontend/coverage/lcov.info
-                    }
-
-                    # Run coverage upload for backend if file exists
-                    if (Test-Path "backend\\coverage\\lcov.info") {
-                        bash codacy-coverage.sh report -r backend/coverage/lcov.info
-                    }
-                '''
             }
         }
     }
 
     post {
         always {
-            script {
-                echo 'Build finished.'
-            }
+            echo 'Build finished.'
         }
     }
 }
