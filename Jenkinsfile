@@ -1,10 +1,5 @@
 pipeline {
     agent any
-
-    tools {
-        nodejs "nodejs" // make sure NodeJS is configured in Jenkins global tools
-    }
-
     stages {
         stage('Install Frontend Dependencies') {
             steps {
