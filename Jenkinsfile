@@ -32,8 +32,9 @@ pipeline {
         stage('Run Frontend Tests') {
             steps {
                 dir('frontend') {
-                    // Run frontend tests; fail build if tests fail
-                    bat 'npm test -- --passWithNoTests'
+                    // Run frontend tests once in CI (disable watch mode); fail build if tests fail
+                    // Set CI=true so create-react-app / Jest runs once; pass --watchAll=false as safeguard
+                    bat 'set "CI=true" && npm test -- --watchAll=false --passWithNoTests'
                 }
             }
         }
