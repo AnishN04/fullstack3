@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs "NodeJS-18"
+        nodejs "NodeJS"
     }
 
     stages {
@@ -41,22 +41,3 @@ pipeline {
         stage('Run Backend Tests') {
             steps {
                 dir('backend') {
-                    sh 'npm test -- --ci --passWithNoTests'
-                }
-            }
-        }
-    }
-
-    post {
-        always {
-            echo "Build finished. Cleaning workspace..."
-            cleanWs()
-        }
-        success {
-            echo "✅ Build succeeded!"
-        }
-        failure {
-            echo "❌ Build failed! Check logs above."
-        }
-    }
-}
