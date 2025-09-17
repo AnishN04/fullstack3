@@ -4,7 +4,7 @@ pipeline {
     environment {
         CI = 'true'
         MONGO_URI = 'mongodb+srv://anishningala2018_db_user:Anish0204@lostandfound.1sduv0o.mongodb.net/?retryWrites=true&w=majority&appName=lostandfound'
-        CODACY_PROJECT_TOKEN = credentials('codacy-project-token') // store your token securely in Jenkins
+        CODACY_PROJECT_TOKEN = credentials('codacy-project-token') // Secure Jenkins credential
     }
 
     tools {
@@ -55,11 +55,13 @@ pipeline {
 
         stage('Codacy Analysis') {
             steps {
-                // Install Codacy CLI on Windows using PowerShell
-                bat '''
-                    curl -L -o codacy-analysis-cli.exe https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-windows-x64.exe
-                    codacy-analysis-cli.exe analyze --tool eslint --output codacy-results.json
-                '''
+                dir('frontend') {
+                    // Download and run Codacy CLI for Windows
+                    powershell '''
+                        Invoke-WebRequest -Uri "https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-windows-x64.exe" -OutFile "codacy-analysis-cli.exe"
+                        .\\codacy-analysis-cli.exe analyze --tool eslint --output codacy-results.json --verbose
+                    '''
+                }
             }
         }
     }
