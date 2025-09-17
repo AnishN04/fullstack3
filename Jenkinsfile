@@ -33,7 +33,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     // Run frontend tests; fail build if tests fail
-                    bat npm test -- --passWithNoTests '
+                    bat 'npm test -- --passWithNoTests'
                 }
             }
         }
