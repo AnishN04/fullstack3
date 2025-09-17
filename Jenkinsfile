@@ -3,12 +3,12 @@ pipeline {
 
     environment {
         CI = 'true'
-        // MongoDB Atlas connection for backend tests
         MONGO_URI = 'mongodb+srv://anishningala2018_db_user:Anish0204@lostandfound.1sduv0o.mongodb.net/?retryWrites=true&w=majority&appName=lostandfound'
+        CODACY_PROJECT_TOKEN = credentials('codacy-project-token') // store your token securely in Jenkins
     }
 
     tools {
-        nodejs "NodeJS" // Make sure your Jenkins NodeJS tool is named exactly "NodeJS"
+        nodejs "NodeJS"
     }
 
     stages {
@@ -35,56 +35,31 @@ pipeline {
             }
         }
 
-        stage('Run Frontend Tests with Coverage') {
+        stage('Run Frontend Tests') {
             steps {
                 dir('frontend') {
-                    bat 'npm test -- --passWithNoTests --watchAll=false --coverage'
+                    bat 'npm test -- --passWithNoTests --watchAll=false'
                 }
             }
         }
 
-        stage('Run Backend Tests with Coverage') {
+        stage('Run Backend Tests') {
             steps {
                 dir('backend') {
                     withEnv(["MONGO_URI=${env.MONGO_URI}"]) {
-                        bat 'npm test -- --coverage'
+                        bat 'npm test'
                     }
-                }
-            }
-        }
-
-        stage('Upload Coverage to Codacy') {
-            steps {
-                withCredentials([string(credentialsId: 'codacy-project-token', variable: 'CODACY_PROJECT_TOKEN')]) {
-                    sh '''
-                        # Upload frontend coverage
-                        if [ -f frontend/coverage/lcov.info ]; then
-                          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r frontend/coverage/lcov.info
-                        fi
-
-                        # Upload backend coverage
-                        if [ -f backend/coverage/lcov.info ]; then
-                          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r backend/coverage/lcov.info
-                        fi
-                    '''
                 }
             }
         }
 
         stage('Codacy Analysis') {
             steps {
-                withCredentials([string(credentialsId: 'codacy-project-token', variable: 'CODACY_PROJECT_TOKEN')]) {
-                    sh '''
-                        # Install Codacy CLI v2
-                        bash <(curl -Ls https://raw.githubusercontent.com/codacy/codacy-cli-v2/main/codacy-cli.sh)
-
-                        # Run analysis & generate SARIF
-                        codacy-cli analyze --format sarif -o codacy.sarif || true
-
-                        # Upload SARIF results to Codacy (associate with current commit)
-                        codacy-cli upload -s codacy.sarif -c "$(git rev-parse HEAD)" -t "$CODACY_PROJECT_TOKEN" || true
-                    '''
-                }
+                // Install Codacy CLI on Windows using PowerShell
+                bat '''
+                    curl -L -o codacy-analysis-cli.exe https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-windows-x64.exe
+                    codacy-analysis-cli.exe analyze --tool eslint --output codacy-results.json
+                '''
             }
         }
     }
