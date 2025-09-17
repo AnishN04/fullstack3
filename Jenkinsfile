@@ -52,10 +52,11 @@ pipeline {
             }
         }
 
-        stage('Install Codacy Reporter') {
+        stage('Download Codacy Reporter') {
             steps {
-                // Install Codacy Coverage Reporter globally
-                bat 'npm install -g @codacy/codacy-coverage-reporter'
+                bat '''
+                    curl -L -o codacy-coverage-reporter.jar https://github.com/codacy/codacy-coverage-reporter/releases/latest/download/codacy-coverage-reporter-assembly.jar
+                '''
             }
         }
 
@@ -63,10 +64,10 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'CODACY_PROJECT_TOKEN', variable: 'CODACY_PROJECT_TOKEN')]) {
                     dir('frontend') {
-                        bat 'codacy-coverage-reporter report -l JavaScript -r coverage/lcov.info'
+                        bat 'java -jar ..\\codacy-coverage-reporter.jar report -l JavaScript -r coverage\\lcov.info'
                     }
                     dir('backend') {
-                        bat 'codacy-coverage-reporter report -l JavaScript -r coverage/lcov.info'
+                        bat 'java -jar ..\\codacy-coverage-reporter.jar report -l JavaScript -r coverage\\lcov.info'
                     }
                 }
             }
