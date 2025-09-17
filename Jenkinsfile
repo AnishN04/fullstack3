@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        CI = 'true'
+        // MongoDB Atlas connection for backend tests
+        MONGO_URI = 'mongodb+srv://anishningala2018_db_user:Anish0204@lostandfound.1sduv0o.mongodb.net/?retryWrites=true&w=majority&appName=lostandfound'
+    }
+
     tools {
         nodejs "NodeJS" // Make sure your Jenkins NodeJS tool is named exactly "NodeJS"
     }
@@ -32,9 +38,7 @@ pipeline {
         stage('Run Frontend Tests') {
             steps {
                 dir('frontend') {
-                    // Run frontend tests once in CI (disable watch mode); fail build if tests fail
-                    // Set CI=true so create-react-app / Jest runs once; pass --watchAll=false as safeguard
-                    bat 'set "CI=true" && npm test -- --watchAll=false --passWithNoTests'
+                    bat 'npm test -- --passWithNoTests --watchAll=false'
                 }
             }
         }
@@ -42,9 +46,19 @@ pipeline {
         stage('Run Backend Tests') {
             steps {
                 dir('backend') {
-                    // Run backend tests normally; failures will fail the build
-                    bat 'npm test'
+                    // Pass MongoDB URI to backend tests safely using Jenkins withEnv
+                    withEnv(["MONGO_URI=${env.MONGO_URI}"]) {
+                        bat 'npm test'
+                    }
                 }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                echo 'Build finished.'
             }
         }
     }
